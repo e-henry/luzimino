@@ -1,20 +1,40 @@
 #include <EEPROM.h>
-#include <WS2812FX.h>
+#include <WS2812FX.h>      //https://github.com/kitesurfer1404/WS2812FX
+#include <Button.h>        //https://github.com/t3db0t/Button
+
 
 #define LED_COUNT 144
 #define LED_PIN 2
 
+
 struct Config {
   char name[10];
-  int version;
-  int R;
-  int G;
-  int B;
-  int brightness;
-  int speed;
-  int mode;
+  unsigned int version;
+  unsigned int R;
+  unsigned int G;
+  unsigned int B;
+  unsigned int brightness;
+  unsigned int speed;
+  unsigned int mode;
 };
 #define CONFIG_VERSION 1
+
+#define DOWN_PIN 3
+#define UP_PIN 5
+#define LEFT_PIN 4
+#define RIGHT_PIN 7
+#define CENTER_PIN 6
+
+#define DEBOUNCE true   
+#define DEBOUNCE_MS 20     //A debounce time of 20 milliseconds usually works well for tactile button switches.
+
+const unsigned int HOLD_TIME = 500;
+
+Button btnUp = Button(UP_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+Button btnDown = Button(DOWN_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+Button btnLeft = Button(LEFT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+Button btnRight = Button(RIGHT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+Button btnCenter = Button(CENTER_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 
 
 // Parameter 1 = number of pixels in strip
@@ -41,7 +61,61 @@ Config config;
   return color;
   
 }*/
+void cb_increaseBrightness(Button& b) {
+  ws2812fx.increaseBrightness(25);
+  Serial.print(F("Increased brightness by 25 to: "));
+  config.brightness = ws2812fx.getBrightness();
+  Serial.println(config.brightness);
+  EEPROM.put(0, config);
+}
 
+void cb_decreaseBrightness(Button& b) {
+  ws2812fx.decreaseBrightness(25); 
+  Serial.print(F("Decreased brightness by 25 to: "));
+  config.brightness = ws2812fx.getBrightness();
+  Serial.println(config.brightness);
+  EEPROM.put(0, config);
+}
+
+void cb_increaseSpeed(Button& b) {
+  ws2812fx.increaseSpeed(10);
+  Serial.print(F("Increased speed by 10 to: "));
+  config.speed = ws2812fx.getSpeed();
+  Serial.println(config.speed);
+  EEPROM.put(0, config);
+}
+
+void cb_decreaseSpeed(Button& b) {
+  ws2812fx.decreaseSpeed(10);
+  Serial.print(F("Decreased speed by 10 to: "));
+  config.speed = ws2812fx.getSpeed();
+  Serial.println(config.speed);
+  EEPROM.put(0, config);
+}
+
+void cb_nextMode(Button& b) {  
+  config.mode++;
+  if (config.mode >= ws2812fx.getModeCount())
+    config.mode = 0;
+    
+  ws2812fx.setMode(config.mode);
+  Serial.print(F("Set mode to: "));
+  Serial.println(config.mode);
+  EEPROM.put(0, config);
+}
+
+void cb_previousMode(Button& b) {  
+  if (config.mode == 0)
+    config.mode = ws2812fx.getModeCount();
+    
+  config.mode--;
+    
+  ws2812fx.setMode(config.mode);
+  Serial.print(F("Set mode to: ")); 
+  Serial.println(config.mode);
+  EEPROM.put(0, config);
+}
+    
 void setup() {
   Serial.begin(115200);
   cmd.reserve(50);
@@ -80,6 +154,15 @@ void setup() {
     Serial.print("config.mode: ");
     Serial.println(config.mode);
   }
+
+  // Assign buttons callback functions
+  btnUp.releaseHandler(cb_increaseBrightness);
+  btnDown.releaseHandler(cb_decreaseBrightness);
+  btnUp.holdHandler(cb_increaseBrightness,500);
+  btnDown.holdHandler(cb_decreaseBrightness,500);
+  btnLeft.clickHandler(cb_previousMode);
+  btnRight.clickHandler(cb_nextMode);
+  //btnCenter.releaseHandler();
   
   ws2812fx.init();
   ws2812fx.setBrightness(config.brightness);
@@ -89,19 +172,27 @@ void setup() {
   ws2812fx.setMode(config.mode);
   ws2812fx.start();
 
-  printModes();
-  printUsage();
+//  printModes();
+//  printUsage();
 }
 
 void loop() {
   ws2812fx.service();
 
   //On micro, call serialEvent since it's not called automatically : 
+  #if defined(__AVR_ATmega32U4__)
   serialEvent();
+  #endif
 
   if(cmd_complete) {
     process_command();
   }
+
+  btnUp.process();
+  btnDown.process();
+  btnLeft.process();
+  btnRight.process();
+  //btnCenter.process();
 }
 
 /*
@@ -157,9 +248,9 @@ void process_command() {
     ws2812fx.setMode(m);
     Serial.print(F("Set mode to: "));
     config.mode = ws2812fx.getMode(); 
-    Serial.print(config.mode);
-    Serial.print(" - ");
-    Serial.println(ws2812fx.getModeName(config.mode));
+    Serial.println(config.mode);
+    //Serial.print(" - ");
+    //Serial.println(ws2812fx.getModeName(config.mode));
   }
 
   if(cmd.startsWith(F("c "))) { 
@@ -209,7 +300,7 @@ void printModes() {
   for(int i=0; i < ws2812fx.getModeCount(); i++) {
     Serial.print(i);
     Serial.print(F("\t"));
-    Serial.println(ws2812fx.getModeName(i));
+//    Serial.println(ws2812fx.getModeName(i));
   }
   Serial.println();
 }
