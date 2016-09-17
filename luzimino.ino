@@ -27,7 +27,7 @@ struct Config {
 #define CENTER_PIN 6
 
 #define DEBOUNCE true
-#define DEBOUNCE_MS 50     //A debounce time of 20 milliseconds usually works well for tactile button switches.
+#define DEBOUNCE_MS 50     //A debounce time of 50 milliseconds usually works well for tactile button switches.
 
 const unsigned int HOLD_TIME = 500;
 
@@ -89,7 +89,7 @@ void changeChannel(uint8_t channel) {
       break;
   }
   CHANNEL = channel;
-  
+
 }
 
 void cb_nextChannel(Button& b) {
@@ -290,102 +290,9 @@ void setup() {
 void loop() {
   ws2812fx.service();
 
-  //On micro, call serialEvent since it's not called automatically :
-  #if defined(__AVR_ATmega32U4__)
-  serialEvent();
-  #endif
-
-  if(cmd_complete) {
-    process_command();
-  }
-
   btnUp.process();
   btnDown.process();
   btnLeft.process();
   btnRight.process();
   btnCenter.process();
-}
-
-/*
- * Checks received command and calls corresponding functions.
- */
-void process_command() {
-  if(cmd == F("b+")) {
-    ws2812fx.increaseBrightness(25);
-    Serial.print(F("Increased brightness by 25 to: "));
-    config.brightness = ws2812fx.getBrightness();
-    Serial.println(config.brightness);
-  }
-
-  if(cmd == F("b-")) {
-    ws2812fx.decreaseBrightness(25);
-    Serial.print(F("Decreased brightness by 25 to: "));
-    config.brightness = ws2812fx.getBrightness();
-    Serial.println(config.brightness);
-  }
-
-  if(cmd.startsWith(F("b "))) {
-    uint8_t b = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setBrightness(b);
-    Serial.print(F("Set brightness to: "));
-    config.brightness = ws2812fx.getBrightness();
-    Serial.println(config.brightness);
-  }
-
-  if(cmd == F("s+")) {
-    ws2812fx.increaseSpeed(10);
-    Serial.print(F("Increased speed by 10 to: "));
-    config.speed = ws2812fx.getSpeed();
-    Serial.println(config.speed);
-  }
-
-  if(cmd == F("s-")) {
-    ws2812fx.decreaseSpeed(10);
-    Serial.print(F("Decreased speed by 10 to: "));
-    config.speed = ws2812fx.getSpeed();
-    Serial.println(config.speed);
-  }
-
-  if(cmd.startsWith(F("s "))) {
-    uint8_t s = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setSpeed(s);
-    Serial.print(F("Set speed to: "));
-    config.speed = ws2812fx.getSpeed();
-    Serial.println(config.speed);
-  }
-
-  if(cmd.startsWith(F("m "))) {
-    uint8_t m = (uint8_t) cmd.substring(2, cmd.length()).toInt();
-    ws2812fx.setMode(m);
-    Serial.print(F("Set mode to: "));
-    config.mode = ws2812fx.getMode();
-    Serial.println(config.mode);
-    //Serial.print(" - ");
-    //Serial.println(ws2812fx.getModeName(config.mode));
-  }
-
-  if(cmd.startsWith(F("c "))) {
-    uint32_t c = (uint32_t) strtol(&cmd.substring(2, cmd.length())[0], NULL, 16);
-    ws2812fx.setColor(c);
-    Serial.print(F("Set color to: "));
-    Serial.println(ws2812fx.getColor(), HEX);
-  }
-
-  cmd = "";              // reset the commandstring
-  cmd_complete = false;  // reset command complete
-  EEPROM.put(0, config);
-}
-
-/*
- * Reads new input from serial to cmd string. Command is completed on \n
- */
-void serialEvent() {
-  while(Serial.available()) {
-    char inChar = (char) Serial.read();
-    if(inChar == '\n') {
-      cmd_complete = true;
-    } else {
-      cmd += inChar;
-    }
-  }
 }
