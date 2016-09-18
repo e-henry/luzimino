@@ -221,8 +221,8 @@ void cb_toggleSetup(Button& b) {
     case SETUP_COLOR:
       Serial.println("Switching to RUN state");
       STATE = RUN;
-      btnUp.clickHandler(cb_increaseBrightness);
-      btnDown.clickHandler(cb_decreaseBrightness);
+      btnUp.clickHandler(cb_increaseSpeed);
+      btnDown.clickHandler(cb_decreaseSpeed);
       btnLeft.clickHandler(cb_previousMode);
       btnRight.clickHandler(cb_nextMode);
       ws2812fx.setColor(config.R, config.G, config.B);
@@ -269,10 +269,10 @@ void setup() {
   }
 
   // Assign buttons callback functions
-  btnUp.clickHandler(cb_increaseBrightness);
-  btnDown.clickHandler(cb_decreaseBrightness);
-  btnUp.holdHandler(cb_increaseBrightness,500);
-  btnDown.holdHandler(cb_decreaseBrightness,500);
+  btnUp.clickHandler(cb_increaseSpeed);
+  btnDown.clickHandler(cb_decreaseSpeed);
+  //btnUp.holdHandler(cb_increaseBrightness,500);
+  //btnDown.holdHandler(cb_decreaseBrightness,500);
   btnLeft.clickHandler(cb_previousMode);
   btnRight.clickHandler(cb_nextMode);
   btnCenter.holdHandler(cb_toggleSetup, 500);
