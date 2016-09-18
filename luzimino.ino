@@ -154,6 +154,11 @@ void cb_decreaseChannelValue(Button& b) {
   }
 }
 
+void setBrightness(int brightness) {
+  ws2812fx.setBrightness(brightness);
+  config.brightness = ws2812fx.getBrightness();
+  Serial.println(config.brightness);
+}
 
 void cb_increaseBrightness(Button& b) {
   ws2812fx.increaseBrightness(25);
