@@ -37,6 +37,8 @@ Button btnLeft = Button(LEFT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS)
 Button btnRight = Button(RIGHT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 Button btnCenter = Button(CENTER_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 
+#define brightnessSensor A0  // Analog input pin that the brightness potentiometer is attached to
+int previousBrightnessSensorValue = 0;
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -236,6 +238,14 @@ void cb_toggleSetup(Button& b) {
   }
 }
 
+void processBrightness(){
+  int sensorValue = analogRead(brightnessSensor);
+  if (previousBrightnessSensorValue != sensorValue) {
+    setBrightness(map(sensorValue, 0, 1023, 0, 255));
+    previousBrightnessSensorValue = sensorValue;
+  }
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -300,4 +310,6 @@ void loop() {
   btnLeft.process();
   btnRight.process();
   btnCenter.process();
+
+  processBrightness();
 }
