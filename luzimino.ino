@@ -50,9 +50,6 @@ int previousBrightnessSensorValue = 0;
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-String cmd = "";               // String to store incoming serial commands
-boolean cmd_complete = false;  // whether the command string is complete
-
 enum {RUN, SETUP_COLOR};       // Setup state machine possible states
 uint8_t STATE;                 // The current setup state machine state
 enum {ALL = 0, RED = 1, GREEN = 2, BLUE = 3};       // Color choosing state machine
@@ -240,7 +237,7 @@ void cb_toggleSetup(Button& b) {
 
 void processBrightness(){
   int sensorValue = analogRead(brightnessSensor);
-  if (previousBrightnessSensorValue != sensorValue) {
+  if (sensorValue > previousBrightnessSensorValue + 16 || sensorValue < previousBrightnessSensorValue - 16) {
     setBrightness(map(sensorValue, 0, 1023, 0, 255));
     previousBrightnessSensorValue = sensorValue;
   }
@@ -249,7 +246,6 @@ void processBrightness(){
 
 void setup() {
   Serial.begin(115200);
-  cmd.reserve(50);
   delay(2000);
   EEPROM.get(0, config);
   if (strcmp(config.name, "Luzimino ") != 0 || config.version != CONFIG_VERSION) {
