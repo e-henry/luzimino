@@ -89,7 +89,7 @@ void changeChannel(uint8_t channel) {
       break;
   }
   CHANNEL = channel;
-  
+
 }
 
 void cb_nextChannel(Button& b) {
@@ -231,81 +231,6 @@ void cb_toggleSetup(Button& b) {
   }
 }
 
-
-void setup() {
-  Serial.begin(115200);
-  cmd.reserve(50);
-  delay(2000);
-  EEPROM.get(0, config);
-  if (strcmp(config.name, "Luzimino ") != 0 || config.version != CONFIG_VERSION) {
-    Serial.println("Conf not in EEPROM");
-    strcpy(config.name, "Luzimino ");
-    config.version = CONFIG_VERSION;
-    config.R = 0xFF;
-    config.G = 0x28;
-    config.B = 0x00;
-    config.brightness = 30;
-    config.speed = 200;
-    config.mode = FX_MODE_COLOR_SWEEP_RANDOM;
-    EEPROM.put(0, config);
-  } else {
-    Serial.println("Got conf from EEPROM");
-    Serial.print("config.name: ");
-    Serial.println(config.name);
-    Serial.print("config.version: ");
-    Serial.println(config.version);
-    Serial.print("config.R: 0x");
-    Serial.println(config.R, HEX);
-    Serial.print("config.G: 0x");
-    Serial.println(config.G, HEX);
-    Serial.print("config.B: 0x");
-    Serial.println(config.B, HEX);
-    Serial.print("config.brightness: ");
-    Serial.println(config.brightness);
-    Serial.print("config.speed: ");
-    Serial.println(config.speed);
-    Serial.print("config.mode: ");
-    Serial.println(config.mode);
-  }
-
-  // Assign buttons callback functions
-  btnUp.clickHandler(cb_increaseBrightness);
-  btnDown.clickHandler(cb_decreaseBrightness);
-  btnUp.holdHandler(cb_increaseBrightness,500);
-  btnDown.holdHandler(cb_decreaseBrightness,500);
-  btnLeft.clickHandler(cb_previousMode);
-  btnRight.clickHandler(cb_nextMode);
-  btnCenter.holdHandler(cb_toggleSetup, 500);
-  btnCenter.clickHandler(cb_storeConfig);
-
-  ws2812fx.init();
-  ws2812fx.setBrightness(config.brightness);
-  ws2812fx.setSpeed(config.speed);
-  ws2812fx.setColor(config.R, config.G, config.B);
-  //ws2812fx.setColor(0xFF2800);
-  ws2812fx.setMode(config.mode);
-  ws2812fx.start();
-}
-
-void loop() {
-  ws2812fx.service();
-
-  //On micro, call serialEvent since it's not called automatically :
-  #if defined(__AVR_ATmega32U4__)
-  serialEvent();
-  #endif
-
-  if(cmd_complete) {
-    process_command();
-  }
-
-  btnUp.process();
-  btnDown.process();
-  btnLeft.process();
-  btnRight.process();
-  btnCenter.process();
-}
-
 /*
  * Checks received command and calls corresponding functions.
  */
@@ -388,4 +313,78 @@ void serialEvent() {
       cmd += inChar;
     }
   }
+}
+
+void setup() {
+  Serial.begin(115200);
+  cmd.reserve(50);
+  delay(2000);
+  EEPROM.get(0, config);
+  if (strcmp(config.name, "Luzimino ") != 0 || config.version != CONFIG_VERSION) {
+    Serial.println("Conf not in EEPROM");
+    strcpy(config.name, "Luzimino ");
+    config.version = CONFIG_VERSION;
+    config.R = 0xFF;
+    config.G = 0x28;
+    config.B = 0x00;
+    config.brightness = 30;
+    config.speed = 200;
+    config.mode = FX_MODE_COLOR_SWEEP_RANDOM;
+    EEPROM.put(0, config);
+  } else {
+    Serial.println("Got conf from EEPROM");
+    Serial.print("config.name: ");
+    Serial.println(config.name);
+    Serial.print("config.version: ");
+    Serial.println(config.version);
+    Serial.print("config.R: 0x");
+    Serial.println(config.R, HEX);
+    Serial.print("config.G: 0x");
+    Serial.println(config.G, HEX);
+    Serial.print("config.B: 0x");
+    Serial.println(config.B, HEX);
+    Serial.print("config.brightness: ");
+    Serial.println(config.brightness);
+    Serial.print("config.speed: ");
+    Serial.println(config.speed);
+    Serial.print("config.mode: ");
+    Serial.println(config.mode);
+  }
+
+  // Assign buttons callback functions
+  btnUp.clickHandler(cb_increaseBrightness);
+  btnDown.clickHandler(cb_decreaseBrightness);
+  btnUp.holdHandler(cb_increaseBrightness,500);
+  btnDown.holdHandler(cb_decreaseBrightness,500);
+  btnLeft.clickHandler(cb_previousMode);
+  btnRight.clickHandler(cb_nextMode);
+  btnCenter.holdHandler(cb_toggleSetup, 500);
+  btnCenter.clickHandler(cb_storeConfig);
+
+  ws2812fx.init();
+  ws2812fx.setBrightness(config.brightness);
+  ws2812fx.setSpeed(config.speed);
+  ws2812fx.setColor(config.R, config.G, config.B);
+  //ws2812fx.setColor(0xFF2800);
+  ws2812fx.setMode(config.mode);
+  ws2812fx.start();
+}
+
+void loop() {
+  ws2812fx.service();
+
+  //On micro, call serialEvent since it's not called automatically :
+  #if defined(__AVR_ATmega32U4__)
+  serialEvent();
+  #endif
+
+  if(cmd_complete) {
+    process_command();
+  }
+
+  btnUp.process();
+  btnDown.process();
+  btnLeft.process();
+  btnRight.process();
+  btnCenter.process();
 }

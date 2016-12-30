@@ -2,6 +2,4 @@
 .clang_complete
 .gcc-flags.json
 .travis.yml
-lib/
-platformio.ini
 .piolibdeps
