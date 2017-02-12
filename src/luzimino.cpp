@@ -237,6 +237,26 @@ void cb_toggleSetup(Button& b) {
  * Checks received command and calls corresponding functions.
  */
 void process_command() {
+  if(cmd == F("dump")) {
+    BTSerial.print("config.name: ");
+    BTSerial.println(config.name);
+    BTSerial.print("config.version: ");
+    BTSerial.println(config.version);
+    BTSerial.print("config.R: 0x");
+    BTSerial.println(config.R, HEX);
+    BTSerial.print("config.G: 0x");
+    BTSerial.println(config.G, HEX);
+    BTSerial.print("config.B: 0x");
+    BTSerial.println(config.B, HEX);
+    BTSerial.print("config.brightness: ");
+    BTSerial.println(config.brightness);
+    BTSerial.print("config.speed: ");
+    BTSerial.println(config.speed);
+    BTSerial.print("config.mode: ");
+    BTSerial.println(config.mode);
+
+  }
+
   if(cmd == F("b+")) {
     ws2812fx.increaseBrightness(25);
     BTSerial.print(F("Increased brightness by 25 to: "));
