@@ -254,7 +254,6 @@ void process_command() {
     BTSerial.println(config.speed);
     BTSerial.print("config.mode: ");
     BTSerial.println(config.mode);
-
   }
 
   if(cmd == F("b+")) {
@@ -318,6 +317,9 @@ void process_command() {
     BTSerial.println(ws2812fx.getColor(), HEX);
   }
 
+  BTSerial.print(F("Got cmd: "));
+  BTSerial.println(cmd);
+
   cmd = "";              // reset the commandstring
   cmd_complete = false;  // reset command complete
   EEPROM.put(0, config);
@@ -356,7 +358,7 @@ void setup() {
     EEPROM.put(0, config);
   } else {
     Serial.println("Got conf from EEPROM");
-    Serial.print("config.name: ");
+    /*Serial.print("config.name: ");
     Serial.println(config.name);
     Serial.print("config.version: ");
     Serial.println(config.version);
@@ -371,7 +373,7 @@ void setup() {
     Serial.print("config.speed: ");
     Serial.println(config.speed);
     Serial.print("config.mode: ");
-    Serial.println(config.mode);
+    Serial.println(config.mode);*/
   }
 
   // Assign buttons callback functions
