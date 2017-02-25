@@ -33,11 +33,11 @@ struct Config {
 
 const unsigned int HOLD_TIME = 500;
 
-Button btnUp = Button(UP_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+/*Button btnUp = Button(UP_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 Button btnDown = Button(DOWN_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 Button btnLeft = Button(LEFT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
 Button btnRight = Button(RIGHT_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
-Button btnCenter = Button(CENTER_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);
+Button btnCenter = Button(CENTER_PIN, BUTTON_PULLUP_INTERNAL, DEBOUNCE, DEBOUNCE_MS);*/
 
 
 // Parameter 1 = number of pixels in strip
@@ -70,7 +70,7 @@ Config config;
 
 }*/
 
-void cb_storeConfig(Button& b) {
+/*void cb_storeConfig(Button& b) {
   Serial.println(F("Store config"));
   EEPROM.put(0, config);
 }
@@ -232,6 +232,7 @@ void cb_toggleSetup(Button& b) {
       break;
   }
 }
+*/
 
 /*
  * Checks received command and calls corresponding functions.
@@ -377,14 +378,14 @@ void setup() {
   }
 
   // Assign buttons callback functions
-  btnUp.clickHandler(cb_increaseBrightness);
+  /*btnUp.clickHandler(cb_increaseBrightness);
   btnDown.clickHandler(cb_decreaseBrightness);
   btnUp.holdHandler(cb_increaseBrightness,500);
   btnDown.holdHandler(cb_decreaseBrightness,500);
   btnLeft.clickHandler(cb_previousMode);
   btnRight.clickHandler(cb_nextMode);
   btnCenter.holdHandler(cb_toggleSetup, 500);
-  btnCenter.clickHandler(cb_storeConfig);
+  btnCenter.clickHandler(cb_storeConfig);*/
 
   ws2812fx.init();
   ws2812fx.setBrightness(config.brightness);
@@ -404,9 +405,9 @@ void loop() {
     process_command();
   }
 
-  btnUp.process();
+  /*btnUp.process();
   btnDown.process();
   btnLeft.process();
   btnRight.process();
-  btnCenter.process();
+  btnCenter.process();*/
 }
