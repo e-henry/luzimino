@@ -13,14 +13,12 @@ SoftwareSerial BTSerial(10, 11); // RX | TX
 struct Config {
   char name[10];
   unsigned int version;
-  unsigned int R;
-  unsigned int G;
-  unsigned int B;
+  uint32_t color;
   unsigned int brightness;
   unsigned int speed;
   unsigned int mode;
 };
-#define CONFIG_VERSION 1
+#define CONFIG_VERSION 2
 
 #define DOWN_PIN 3
 #define UP_PIN 5
@@ -243,12 +241,8 @@ void process_command() {
     BTSerial.println(config.name);
     BTSerial.print("config.version: ");
     BTSerial.println(config.version);
-    BTSerial.print("config.R: 0x");
-    BTSerial.println(config.R, HEX);
-    BTSerial.print("config.G: 0x");
-    BTSerial.println(config.G, HEX);
-    BTSerial.print("config.B: 0x");
-    BTSerial.println(config.B, HEX);
+    BTSerial.print("config.color: 0x");
+    BTSerial.println(config.color, HEX);
     BTSerial.print("config.brightness: ");
     BTSerial.println(config.brightness);
     BTSerial.print("config.speed: ");
@@ -315,7 +309,8 @@ void process_command() {
     uint32_t c = (uint32_t) strtol(&cmd.substring(2, cmd.length())[0], NULL, 16);
     ws2812fx.setColor(c);
     BTSerial.print(F("Set color to: "));
-    BTSerial.println(ws2812fx.getColor(), HEX);
+    config.color = ws2812fx.getColor();
+    BTSerial.println(config.color, HEX);
   }
 
   BTSerial.print(F("Got cmd: "));
@@ -350,9 +345,7 @@ void setup() {
     Serial.println("Conf not in EEPROM");
     strcpy(config.name, "Luzimino ");
     config.version = CONFIG_VERSION;
-    config.R = 0xFF;
-    config.G = 0x28;
-    config.B = 0x00;
+    config.color = 0xFF0028;
     config.brightness = 30;
     config.speed = 200;
     config.mode = FX_MODE_COLOR_SWEEP_RANDOM;
@@ -390,7 +383,7 @@ void setup() {
   ws2812fx.init();
   ws2812fx.setBrightness(config.brightness);
   ws2812fx.setSpeed(config.speed);
-  ws2812fx.setColor(config.R, config.G, config.B);
+  ws2812fx.setColor(config.color);
   //ws2812fx.setColor(0xFF2800);
   ws2812fx.setMode(config.mode);
   ws2812fx.start();
